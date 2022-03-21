@@ -1,3 +1,11 @@
 <resources>
-    <string name="app_name">eseo_minesweeper</string>
+    <string name="app_name">MineSweeper</string>
+    <string name="element_text">XXXXX</string>
+    <string name="retour_en_arri_re">Retour en arrière</string>
+    <string name="ranking">Ranking</string>
+    <string-array name="levels">
+        <item>Easy</item>
+        <item>Medium</item>
+        <item>Hard</item>
+    </string-array>
 </resources>
