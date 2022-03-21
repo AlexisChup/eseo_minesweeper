@@ -1,39 +1,60 @@
 package com.example.eseo_minesweeper;
 
-import android.annotation.SuppressLint;
-import android.graphics.Color;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+
+import java.util.ArrayList;
+
 public class MainActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
 
+    //---------------------------- Déclaration des variables ----------------------------
     private boolean mute = false;
+    private int btState = 2; // 0 -> FLAG || 1 -> ? || 2 -> REVEAL
 
-    private Button btMute;
-    private Button btRank;
-    private Button btRetry;
-    private Button btQuit;
+    //Barre boutons Haute
+    private ImageButton btMute;
+    private ImageButton btRank;
+    private ImageButton btRetry;
+    private ImageButton btQuit;
 
-    private Button btFlag;
-    private Button btQstMark;
-    private Button btReveal;
+    //Barre boutons Basse
+    private ImageButton btFlag;
+    private ImageButton btQstMark;
+    private ImageButton btReveal;
 
+    //Info Partie
     private TextView txtVNbBombs;
     private TextView txtVTime;
 
+    //Liste déroulante
     private Spinner spinLevels;
 
+    //MediaPlayer
     private MediaPlayer mediaPlayer;
 
+    //Relatif aux SharedPreferences
+    private static final String SHARED_PREFS = "SHARED_PREFS";
+    private static final String LIST_PLAYER = "LIST_PLAYER";
+    private ArrayList<PlayerRanking> playerRankingList;
+    private SharedPreferences sharedPreferences;
+    private SharedPreferences.Editor editor;
+    //---------------------------- ---------------------------- ----------------------------
+
+    //---------------------------- cycle de vie de l'app ----------------------------
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -52,12 +73,16 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         spinLevels.setOnItemSelectedListener(this);
 
         btFlag = findViewById(R.id.btFlag);
+        btFlag.setImageResource(R.drawable.flag_off);
+
         btQstMark = findViewById(R.id.btQuestionMark);
+        btQstMark.setImageResource(R.drawable.question_mark_off);
+
         btReveal = findViewById(R.id.btReveal);
+        btReveal.setImageResource(R.drawable.reveal_on);
 
         //Paramétrage spinner
-        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
-                R.array.levels, android.R.layout.simple_spinner_item);
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this, R.array.levels, android.R.layout.simple_spinner_item);
 
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 
@@ -67,36 +92,118 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         mediaPlayer = MediaPlayer.create(this, R.raw.music);
 
         mediaPlayer.start();
-
         mediaPlayer.setLooping(true);
 
-    }
-
-    public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
-        Toast.makeText(MainActivity.this, (String) parent.getItemAtPosition(pos), Toast.LENGTH_SHORT).show();
-    }
-
-    public void onNothingSelected(AdapterView<?> parent) {
+        //Récupération des données des SharedPreferences
+        loadSharedData();
 
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        btMute.setOnClickListener(new View.OnClickListener() {
-            @SuppressLint("ResourceAsColor")
-            @Override
-            public void onClick(View v) {
-                mute = !mute;
-                if (mute) {
-                    mediaPlayer.pause();
-                    btMute.setBackgroundColor(Color.RED);
-                }
-                else {
-                    mediaPlayer.start();
-                    btMute.setBackgroundColor(Color.MAGENTA);
-                }
+
+        //-------------- Son de l'app --------------
+        btMute.setOnClickListener(v -> {
+            mute = !mute;
+            if (mute) {
+                mediaPlayer.pause();
+                btMute.setImageResource(R.drawable.volume_off);
+            }
+            else {
+                mediaPlayer.start();
+                btMute.setImageResource(R.drawable.volume_up);
             }
         });
+
+        //-------------- Affichage du classement --------------
+        btRank.setOnClickListener(v -> {
+            Intent rankingAct = new Intent(MainActivity.this, RankingActivity.class);
+            Bundle bundle = new Bundle();
+            bundle.putSerializable("LIST_PLAYER_RANK", playerRankingList); //ajout de la liste des joueurs
+            rankingAct.putExtras(bundle);
+            startActivity(rankingAct);
+        });
+
+        //-------------- Recommencer la partie --------------
+        btRetry.setOnClickListener(v -> {
+            //TODO Recommencer une nouvelle partie après validation
+        });
+
+        //-------------- Quitter l'app --------------
+        btQuit.setOnClickListener(v -> finish());
+
+        //-------------- BTs JEU --------------
+        btFlag.setOnClickListener(v -> {
+            // Passer en mode "FLAG" / Réinitialiser les autres bt
+            if (btState != 0) {
+                btFlag.setImageResource(R.drawable.flag_on);
+                btState = 0; // PASSAGE EN MODE FLAG
+
+                btQstMark.setImageResource(R.drawable.question_mark_off);
+                btReveal.setImageResource(R.drawable.reveal_off);
+            }
+        });
+
+        btQstMark.setOnClickListener(v -> {
+            // Passer en mode "?" / Réinitialiser les autres bt
+            if (btState != 1) {
+                btQstMark.setImageResource(R.drawable.question_mark_on);
+                btState = 1; // PASSAGE EN MODE FLAG
+
+                btFlag.setImageResource(R.drawable.flag_off);
+                btReveal.setImageResource(R.drawable.reveal_off);
+            }
+        });
+
+        btReveal.setOnClickListener(v -> {
+            // Passer en mode "REVEAL" / Réinitialiser les autres bt
+            if (btState != 2) {
+                btReveal.setImageResource(R.drawable.reveal_on);
+                btState = 2; // PASSAGE EN MODE FLAG
+
+                btFlag.setImageResource(R.drawable.flag_off);
+                btQstMark.setImageResource(R.drawable.question_mark_off);
+            }
+        });
+
     }
+    //---------------------------- ---------------------------- ----------------------------
+
+    //---------------------------- SharedPreferences methods ----------------------------
+    private void saveSharedData() {
+        sharedPreferences = getSharedPreferences(SHARED_PREFS, MODE_PRIVATE);
+        editor = sharedPreferences.edit();
+        Gson gson = new Gson();
+        String json = gson.toJson(playerRankingList);
+        editor.putString(LIST_PLAYER, json);
+        editor.apply();
+    }
+
+    private void loadSharedData() {
+        sharedPreferences = getSharedPreferences(SHARED_PREFS, MODE_PRIVATE);
+        Gson gson = new Gson();
+        String json = sharedPreferences.getString(LIST_PLAYER, null);
+        playerRankingList = gson.fromJson(json, new TypeToken <ArrayList<PlayerRanking>>(){}.getType());
+
+        if (playerRankingList == null) {
+            playerRankingList = new ArrayList<>();
+        }
+    }
+    //---------------------------- ---------------------------- ----------------------------
+
+    //---------------------------- Sélection des niveaux ----------------------------
+    public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
+        Toast.makeText(MainActivity.this, (String) parent.getItemAtPosition(pos), Toast.LENGTH_SHORT).show();
+        //TODO Changer le mode de jeu après validation
+    }
+
+    public void onNothingSelected(AdapterView<?> parent) {
+    }
+    //---------------------------- ---------------------------- ----------------------------
+
+    public void onGameWon(){
+        saveSharedData();
+    }
+
 }
