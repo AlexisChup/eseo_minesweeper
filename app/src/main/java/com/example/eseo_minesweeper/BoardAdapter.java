@@ -65,8 +65,7 @@ public class BoardAdapter extends BaseAdapter {
 
         if (cell.isRevealed()){
 
-            if (cell.isBomb()) return R.drawable.reveal_off;
-            // TODO: bomb image
+            if (cell.isBomb()) return R.drawable.bomb;
             if (cell.hasBombNeighbor()) {
 
                 switch (cell.noOfNeighborIsBomb()) {
@@ -85,21 +84,17 @@ public class BoardAdapter extends BaseAdapter {
                     case 7:
                         return R.drawable.seven;
                     case 8:
-                        return R.drawable.height;
+                        return R.drawable.eight;
                     default:
-                        return R.drawable.back;
-                        // TODO: revealed_cell
+                        return R.drawable.discovered_tile;
                 }
 
             }
-            return R.drawable.back;
-            // TODO: revealed_cell
+            return R.drawable.discovered_tile;
         }
-        if (cell.hasWarningFlag()) return R.drawable.flag_off;
-        //TODO: mettre la meilleure image
+        if (cell.hasWarningFlag()) return R.drawable.flag_game;
 
-        return R.drawable.exit;
-        // TODO: non_revealed_cell
+        return R.drawable.full_tile;
     }
 
 

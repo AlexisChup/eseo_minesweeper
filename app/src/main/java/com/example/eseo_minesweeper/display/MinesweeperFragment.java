@@ -15,6 +15,7 @@ import android.widget.GridView;
 import android.widget.TextView;
 
 import com.example.eseo_minesweeper.BoardAdapter;
+import com.example.eseo_minesweeper.R;
 import com.example.eseo_minesweeper.SettingsFragment;
 import com.example.eseo_minesweeper.exceptions.IllegalGameConstructionException;
 import com.example.eseo_minesweeper.logic.Cell;
@@ -23,7 +24,11 @@ import com.example.eseo_minesweeper.logic.MinesweeperGame.Action;
 
 public class MinesweeperFragment extends Fragment {
 
-    private static MinesweeperGame game = new MinesweeperGame();
+    private static MinesweeperGame game;
+
+    public MinesweeperFragment() {
+        this.game = new MinesweeperGame();
+    }
 
 
     @Override
@@ -89,11 +94,12 @@ public class MinesweeperFragment extends Fragment {
 
                 SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getActivity());
 
-                int rows = Integer.parseInt(sharedPref.getString(SettingsFragment.KEY_PREF_ROWS, "10"));
-                int columns = Integer.parseInt(sharedPref.getString(SettingsFragment.KEY_PREF_COLUMNS, "10"));
-                int bombs = Integer.parseInt(sharedPref.getString(SettingsFragment.KEY_PREF_BOMBS, "10"));
+                //int rows = Integer.parseInt(sharedPref.getString(SettingsFragment.KEY_PREF_ROWS, "10"));
+                //int columns = Integer.parseInt(sharedPref.getString(SettingsFragment.KEY_PREF_COLUMNS, "10"));
+                //int bombs = Integer.parseInt(sharedPref.getString(SettingsFragment.KEY_PREF_BOMBS, "10"));
 
-                game.newGame(rows, columns, bombs);
+                //game.newGame(rows, columns, bombs);
+                game.newGame(10, 10, 10);
 
                 attachGameToGridView();
                 refreshGameViews();

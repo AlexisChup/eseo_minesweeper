@@ -14,6 +14,7 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.eseo_minesweeper.display.MinesweeperFragment;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
@@ -52,6 +53,10 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     private ArrayList<PlayerRanking> playerRankingList;
     private SharedPreferences sharedPreferences;
     private SharedPreferences.Editor editor;
+
+    //Fragment
+    private MinesweeperFragment minesweeperFragment;
+
     //---------------------------- ---------------------------- ----------------------------
 
     //---------------------------- cycle de vie de l'app ----------------------------
@@ -66,7 +71,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         btRetry = findViewById(R.id.btRetry);
         btQuit = findViewById(R.id.btQuit);
 
-        txtVNbBombs = findViewById(R.id.txtNbBombs);
+        txtVNbBombs = findViewById(R.id.action_bombs_remaining_textview);
         txtVTime = findViewById(R.id.txtTime);
 
         spinLevels = findViewById(R.id.spinnerLevel);
@@ -96,6 +101,13 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
         //Récupération des données des SharedPreferences
         loadSharedData();
+
+        //Grid Fragment
+        minesweeperFragment = new MinesweeperFragment();
+        getFragmentManager()
+                .beginTransaction()
+                .add(R.id.boardGridView, minesweeperFragment)
+                .commit();
 
     }
 
@@ -166,6 +178,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 btQstMark.setImageResource(R.drawable.question_mark_off);
             }
         });
+
+        //minesweeperFragment.startNewGame();
 
     }
     //---------------------------- ---------------------------- ----------------------------
