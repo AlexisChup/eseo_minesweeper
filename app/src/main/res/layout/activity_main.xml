@@ -46,21 +46,22 @@
 
     </LinearLayout>
 
-    <LinearLayout
+    <FrameLayout
         android:layout_width="match_parent"
+        android:id="@+id/content_frame"
         android:layout_height="0dp"
         android:orientation="vertical"
         app:layout_constraintHeight_default="percent"
         app:layout_constraintHeight_percent="0.70"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/layoutBtInfoGame"> >
+        app:layout_constraintTop_toBottomOf="@id/layoutBtInfoGame">
 
         <GridView
             android:id="@+id/boardGridView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:numColumns="20" />
-    </LinearLayout>
+            android:numColumns="10" />
+    </FrameLayout>
 
     <LinearLayout
         android:id="@+id/layoutBtInfoGame"

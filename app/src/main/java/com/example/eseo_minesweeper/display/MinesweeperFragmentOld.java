@@ -1,7 +1,10 @@
 package com.example.eseo_minesweeper.display;
 
 import android.app.AlertDialog;
-import android.app.Fragment;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -22,14 +25,11 @@ import com.example.eseo_minesweeper.logic.Cell;
 import com.example.eseo_minesweeper.logic.MinesweeperGame;
 import com.example.eseo_minesweeper.logic.MinesweeperGame.Action;
 
-public class MinesweeperFragment extends Fragment {
+public class MinesweeperFragmentOld extends Fragment {
 
-    private static MinesweeperGame game;
+    private static MinesweeperGame game = new MinesweeperGame();
 
-    public MinesweeperFragment() {
-        this.game = new MinesweeperGame();
-    }
-
+    public MinesweeperFragmentOld() {}
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -38,37 +38,37 @@ public class MinesweeperFragment extends Fragment {
         View view = inflater.inflate(R.layout.activity_main, container, false);
         GridView boardGridView = (GridView) view.findViewById(R.id.boardGridView);
 
-        boardGridView.setOnItemClickListener(new OnItemClickListener(){
-
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position,
-                                    long id) {
-                Cell cell = (Cell) parent.getAdapter().getItem(position);
-                clickCell(cell, Action.PLAY);
-            }
-
-        });
-
-        boardGridView.setOnItemLongClickListener(new OnItemLongClickListener() {
-
-            @Override
-            public boolean onItemLongClick(AdapterView<?> parent, View view,
-                                           int position, long id) {
-
-                Cell cell = (Cell) parent.getAdapter().getItem(position);
-
-                if (cell.hasWarningFlag()) {
-                    clickCell(cell, MinesweeperGame.Action.REMOVE_FLAG);
-                }
-                else {
-                    clickCell(cell, MinesweeperGame.Action.SET_WARNING_FLAG);
-                }
-
-                return true;
-            }
-        });
-
-        getActivity().invalidateOptionsMenu(); // called to center remaining_bombs_textview when returning from settings
+//        boardGridView.setOnItemClickListener(new OnItemClickListener(){
+//
+//            @Override
+//            public void onItemClick(AdapterView<?> parent, View view, int position,
+//                                    long id) {
+//                Cell cell = (Cell) parent.getAdapter().getItem(position);
+//                clickCell(cell, Action.PLAY);
+//            }
+//
+//        });
+//
+//        boardGridView.setOnItemLongClickListener(new OnItemLongClickListener() {
+//
+//            @Override
+//            public boolean onItemLongClick(AdapterView<?> parent, View view,
+//                                           int position, long id) {
+//
+//                Cell cell = (Cell) parent.getAdapter().getItem(position);
+//
+//                if (cell.hasWarningFlag()) {
+//                    clickCell(cell, MinesweeperGame.Action.REMOVE_FLAG);
+//                }
+//                else {
+//                    clickCell(cell, MinesweeperGame.Action.SET_WARNING_FLAG);
+//                }
+//
+//                return true;
+//            }
+//        });
+//
+//        getActivity().invalidateOptionsMenu(); // called to center remaining_bombs_textview when returning from settings
 
         return view;
     }
@@ -78,21 +78,26 @@ public class MinesweeperFragment extends Fragment {
     public void onStart() {
         super.onStart();
 
-        if (game.gameHasEnded()) {
-            startNewGame();
-        }
-        else{
-            attachGameToGridView();
-            refreshGameViews();
-        }
     }
 
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+//        if (game.gameHasEnded()) {
+//            startNewGame();
+//        }
+//        else{
+//            attachGameToGridView();
+//            refreshGameViews();
+//        }
+    }
 
     public void startNewGame() {
         if (isAdded()) {
             try {
 
-                SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getActivity());
+                //SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getActivity());
 
                 //int rows = Integer.parseInt(sharedPref.getString(SettingsFragment.KEY_PREF_ROWS, "10"));
                 //int columns = Integer.parseInt(sharedPref.getString(SettingsFragment.KEY_PREF_COLUMNS, "10"));
@@ -119,7 +124,11 @@ public class MinesweeperFragment extends Fragment {
 
     private void attachGameToGridView() {
         GridView boardGridView = (GridView) getView().findViewById(R.id.boardGridView);
-        boardGridView.setNumColumns(game.getBoard().getCells()[0].length);
+
+//        boardGridView.setNumColumns(game.getBoard().getCells()[0].length);
+//        boardGridView.setAdapter(new BoardAdapter(getActivity(), game.getBoard()));
+
+        boardGridView.setNumColumns(10);
         boardGridView.setAdapter(new BoardAdapter(getActivity(), game.getBoard()));
     }
 
@@ -157,7 +166,6 @@ public class MinesweeperFragment extends Fragment {
                 if (game.playerWon()) createPlayerWonDialog();
             }
         }
-
         refreshGameViews();
     }
 

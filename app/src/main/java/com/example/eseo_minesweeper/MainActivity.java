@@ -13,12 +13,16 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.FragmentTransaction;
 
-import com.example.eseo_minesweeper.display.MinesweeperFragment;
+import com.example.eseo_minesweeper.display.MinesweeperFragmentOld;
+import com.example.eseo_minesweeper.exceptions.IllegalGameConstructionException;
+import com.example.eseo_minesweeper.logic.MinesweeperGame;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
 
@@ -55,7 +59,9 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     private SharedPreferences.Editor editor;
 
     //Fragment
-    private MinesweeperFragment minesweeperFragment;
+    private MinesweeperFragmentOld minesweeperFragmentOld;
+    private List<CaseGame> caseGames;
+    private static MinesweeperGame game;
 
     //---------------------------- ---------------------------- ----------------------------
 
@@ -101,14 +107,32 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
         //Récupération des données des SharedPreferences
         loadSharedData();
+//        minesweeperFragmentOld = new MinesweeperFragmentOld();
 
-        //Grid Fragment
-        minesweeperFragment = new MinesweeperFragment();
-        getFragmentManager()
-                .beginTransaction()
-                .add(R.id.boardGridView, minesweeperFragment)
-                .commit();
+        game = new MinesweeperGame();
+        try {
+            game.newGame(10, 10, 10);
+        } catch (IllegalGameConstructionException e) {
+            e.printStackTrace();
+        }
+        caseGames = new ArrayList<>();
+        addCases();
+        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+        ft.add(R.id.content_frame, caseGames.get(0));
+//        for(CaseGame q : caseGames) {
+//            ft.add(R.id.boardGridView,q);
+//        }
+        ft.commit();
 
+
+    }
+
+    private void addCases() {
+        for (int row = 0; row < 10; row++) {
+            for (int column = 0; column < 10; column++) {
+                caseGames.add(CaseGame.newInstance(game));
+            }
+        }
     }
 
     @Override
@@ -179,7 +203,12 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             }
         });
 
-        //minesweeperFragment.startNewGame();
+        //Grid Fragment
+//        getSupportFragmentManager()
+//                .beginTransaction()
+//                .add(R.id.boardGridView, minesweeperFragmentOld)
+//                .commit();
+
 
     }
     //---------------------------- ---------------------------- ----------------------------
