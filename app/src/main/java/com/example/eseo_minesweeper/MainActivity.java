@@ -30,13 +30,13 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     private boolean mute = false;
     private int btState = 2; // 0 -> FLAG || 1 -> ? || 2 -> REVEAL
 
-    //Barre boutons Haute
+    //Barre boutons Supérieure
     private ImageButton btMute;
     private ImageButton btRank;
     private ImageButton btRetry;
     private ImageButton btQuit;
 
-    //Barre boutons Basse
+    //Barre boutons Inférieure
     private ImageButton btFlag;
     private ImageButton btQstMark;
     private ImageButton btReveal;

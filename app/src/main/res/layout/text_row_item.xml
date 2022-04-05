@@ -5,6 +5,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:gravity="center_vertical">
 
+<!-- Réprésentation d'une ligne du RecyclerView - utilisé par le customAdapter-->
     <TextView
         android:id="@+id/textViewRank"
         android:layout_width="0dp"
