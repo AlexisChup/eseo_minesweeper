@@ -56,11 +56,17 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toBottomOf="@id/layoutBtInfoGame">
 
-        <GridView
+<!--        <TextView-->
+<!--            android:id="@+id/boardGridView"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="match_parent"-->
+<!--            android:text="TextView" />-->
+
+        <LinearLayout
             android:id="@+id/boardGridView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:numColumns="10" />
+            android:orientation="horizontal"></LinearLayout>
     </FrameLayout>
 
     <LinearLayout

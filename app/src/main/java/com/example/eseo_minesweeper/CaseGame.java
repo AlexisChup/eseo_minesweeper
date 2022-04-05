@@ -7,6 +7,7 @@ import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import com.example.eseo_minesweeper.logic.MinesweeperGame;
 
@@ -41,6 +42,11 @@ public class CaseGame extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_case_game, container, false);
+        View view = inflater.inflate(R.layout.fragment_case_game, container, false);
+        TextView text = view.findViewById(R.id.boardGridView);
+        //text.setText("1");
+        return view;
+
+        //return inflater.inflate(R.layout.fragment_case_game, container, false);
     }
 }

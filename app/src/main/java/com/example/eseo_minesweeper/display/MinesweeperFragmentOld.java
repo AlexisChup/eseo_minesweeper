@@ -1,5 +1,6 @@
 package com.example.eseo_minesweeper.display;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 
 import androidx.annotation.NonNull;
@@ -36,7 +37,7 @@ public class MinesweeperFragmentOld extends Fragment {
             Bundle savedInstanceState) {
 
         View view = inflater.inflate(R.layout.activity_main, container, false);
-        GridView boardGridView = (GridView) view.findViewById(R.id.boardGridView);
+        @SuppressLint("WrongViewCast") GridView bo = (GridView) view.findViewById(R.id.boardGridView);
 
 //        boardGridView.setOnItemClickListener(new OnItemClickListener(){
 //
@@ -123,7 +124,7 @@ public class MinesweeperFragmentOld extends Fragment {
 
 
     private void attachGameToGridView() {
-        GridView boardGridView = (GridView) getView().findViewById(R.id.boardGridView);
+        @SuppressLint("WrongViewCast") GridView boardGridView = (GridView) getView().findViewById(R.id.boardGridView);
 
 //        boardGridView.setNumColumns(game.getBoard().getCells()[0].length);
 //        boardGridView.setAdapter(new BoardAdapter(getActivity(), game.getBoard()));

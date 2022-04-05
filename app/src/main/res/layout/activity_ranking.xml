@@ -18,7 +18,7 @@
         android:contentDescription="@string/retour_en_arri_re" />
 
     <TextView
-        android:id="@+id/textView"
+        android:id="@+id/boardGridView"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:text="@string/ranking"

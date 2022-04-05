@@ -111,14 +111,20 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
         game = new MinesweeperGame();
         try {
-            game.newGame(10, 10, 10);
+            game.newGame(5, 5, 1);
         } catch (IllegalGameConstructionException e) {
             e.printStackTrace();
         }
         caseGames = new ArrayList<>();
         addCases();
+        //addCases();
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-        ft.add(R.id.content_frame, caseGames.get(0));
+        for (int index = 0; index < 25; index++) {
+            ft.add(R.id.content_frame, caseGames.get(index));
+        }
+        //ft.add(R.id.content_frame, caseGames.get(0));
+        //ft.add(R.id.content_frame, caseGames.get(1));
+        //ft.add(R.id.frag, caseGames.get(2));
 //        for(CaseGame q : caseGames) {
 //            ft.add(R.id.boardGridView,q);
 //        }
@@ -128,8 +134,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     }
 
     private void addCases() {
-        for (int row = 0; row < 10; row++) {
-            for (int column = 0; column < 10; column++) {
+        for (int row = 0; row < 5; row++) {
+            for (int column = 0; column < 5; column++) {
                 caseGames.add(CaseGame.newInstance(game));
             }
         }
