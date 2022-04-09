@@ -1,4 +1,4 @@
-package com.example.eseo_minesweeper;
+package com.example.eseo_minesweeper.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -7,6 +7,10 @@ import android.widget.ImageButton;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.example.eseo_minesweeper.CustomAdapter;
+import com.example.eseo_minesweeper.PlayerRanking;
+import com.example.eseo_minesweeper.R;
 
 import java.util.ArrayList;
 import java.util.List;

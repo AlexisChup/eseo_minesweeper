@@ -1,4 +1,4 @@
-package com.example.eseo_minesweeper;
+package com.example.eseo_minesweeper.activities;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -13,22 +13,26 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
-import com.example.eseo_minesweeper.display.MinesweeperFragmentOld;
-import com.example.eseo_minesweeper.exceptions.IllegalGameConstructionException;
-import com.example.eseo_minesweeper.logic.MinesweeperGame;
+import com.example.eseo_minesweeper.CellState;
+import com.example.eseo_minesweeper.PlayerRanking;
+import com.example.eseo_minesweeper.R;
+import com.example.eseo_minesweeper.fragments.Cell;
+import com.example.eseo_minesweeper.fragments.RowCells;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Random;
 
 public class MainActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
 
     //---------------------------- Déclaration des variables ----------------------------
     private boolean mute = false;
     private int btState = 2; // 0 -> FLAG || 1 -> ? || 2 -> REVEAL
+    private int difficulty = 16;
 
     //Barre boutons Supérieure
     private ImageButton btMute;
@@ -59,9 +63,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     private SharedPreferences.Editor editor;
 
     //Fragment
-    private MinesweeperFragmentOld minesweeperFragmentOld;
-    private List<CaseGame> caseGames;
-    private static MinesweeperGame game;
+    private ArrayList<RowCells> listLine;
 
     //---------------------------- ---------------------------- ----------------------------
 
@@ -107,32 +109,14 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
         //Récupération des données des SharedPreferences
         loadSharedData();
-//        minesweeperFragmentOld = new MinesweeperFragmentOld();
 
-        game = new MinesweeperGame();
-        try {
-            game.newGame(10, 10, 10);
-        } catch (IllegalGameConstructionException e) {
-            e.printStackTrace();
-        }
-        caseGames = new ArrayList<>();
-        addCases();
+        listLine = new ArrayList<>();
+        addRowsOfCells();
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-        ft.add(R.id.content_frame, caseGames.get(0));
-//        for(CaseGame q : caseGames) {
-//            ft.add(R.id.boardGridView,q);
-//        }
-        ft.commit();
-
-
-    }
-
-    private void addCases() {
-        for (int row = 0; row < 10; row++) {
-            for (int column = 0; column < 10; column++) {
-                caseGames.add(CaseGame.newInstance(game));
-            }
+        for (RowCells frag : listLine) {
+            ft.add(R.id.containerLigne, frag, null);
         }
+        ft.commit();
     }
 
     @Override
@@ -164,6 +148,13 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         //-------------- Recommencer la partie --------------
         btRetry.setOnClickListener(v -> {
             //TODO Recommencer une nouvelle partie après validation
+            for (Fragment fragment : getSupportFragmentManager().getFragments()) {
+                for (Fragment childFragment : fragment.getChildFragmentManager().getFragments()) {
+                    fragment.getChildFragmentManager().beginTransaction().remove(childFragment).commit();
+                }
+                getSupportFragmentManager().beginTransaction().remove(fragment).commit();
+            }
+            restartGame();
         });
 
         //-------------- Quitter l'app --------------
@@ -203,13 +194,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             }
         });
 
-        //Grid Fragment
-//        getSupportFragmentManager()
-//                .beginTransaction()
-//                .add(R.id.boardGridView, minesweeperFragmentOld)
-//                .commit();
-
-
+        setupBombs();
+        setupNbBombsAroundForEachCell();
     }
     //---------------------------- ---------------------------- ----------------------------
 
@@ -247,6 +233,198 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     public void onGameWon(){
         saveSharedData();
+    }
+
+    public void restartGame() {
+        Intent intent = getIntent();
+        finish();
+        startActivity(intent);
+    }
+
+    private void addRowsOfCells() {
+        listLine.clear();
+
+        for (int nbOfRow = 0; nbOfRow < difficulty; nbOfRow++) {
+            listLine.add(RowCells.newInstance(difficulty));
+        }
+    }
+
+    private void setupBombs() {
+        for (int i = 0; i < difficulty; i++) {
+            placeRandomBomb();
+        }
+    }
+
+    private void placeRandomBomb() {
+        Random randomGenerator = new Random();
+        Cell cell;
+        boolean isBombPlaced = false;
+        int sizeGame = listLine.size();
+        int randomRow, randomColumn;
+
+        while(!isBombPlaced) {
+            randomRow = randomGenerator.nextInt(sizeGame);
+            randomColumn = randomGenerator.nextInt(sizeGame);
+
+            cell = listLine.get(randomRow).getListCells().get(randomColumn);
+
+            if (cell.getState() != CellState.BOMB.ordinal()) { ;
+                cell.becomeBomb();
+                isBombPlaced = true;
+            }
+        }
+    }
+
+
+    private void setupNbBombsAroundForEachCell() {
+        int numRow = 0;
+        int numCell = 0;
+
+        for (RowCells row : listLine) {
+            numCell = 0;
+
+            for (Cell cell : row.getListCells()) {
+                int nbBombsAround = calculateBombsAroundForOneCell(numRow, numCell);
+
+                if (!(cell.getState() == CellState.BOMB.ordinal())) {
+                    cell.setNbBombAround(nbBombsAround);
+                }
+
+                numCell++;
+            }
+            numRow++;
+        }
+    }
+
+
+
+
+    private int calculateBombsAroundForOneCell(int numRow, int numCell) {
+        int nbBombsAround = 0;
+        int sizeGame = listLine.size();
+
+        int minRow = numRow - 1;
+        if (minRow < 0) {
+            minRow = 0;
+        }
+
+        int maxRow = numRow + 1;
+        if (maxRow > sizeGame - 1) {
+            maxRow = sizeGame - 1;
+        }
+
+        int minCol = numCell - 1;
+        if (minCol < 0) {
+            minCol = 0;
+        }
+
+        int maxCol = numCell + 1;
+        if (maxCol > sizeGame - 1) {
+            maxCol = sizeGame - 1;
+        }
+
+        for (int i = minRow; i < maxRow + 1; i++) {
+            for (int j = minCol; j < maxCol + 1; j++) {
+                if (listLine.get(i).getListCells().get(j).getState() == CellState.BOMB.ordinal()) {
+                    nbBombsAround++;
+                }
+            }
+        }
+
+        return nbBombsAround;
+    }
+
+    public void showCellUntilDiscoverBomb(Cell cellCliked) {
+        int row;
+        int column;
+
+        int[] positionCellCliked = findPositionOfCellInBoard(cellCliked);
+
+        row = positionCellCliked[0];
+        column = positionCellCliked[1];
+
+        Cell cell;
+
+        int sizeGame = listLine.size();
+
+        int minRow = row - 1;
+        if (minRow < 0) {
+            minRow = 0;
+        }
+
+        int maxRow = row + 1;
+        if (maxRow > sizeGame - 1) {
+            maxRow = sizeGame - 1;
+        }
+
+        int minCol = column - 1;
+        if (minCol < 0) {
+            minCol = 0;
+        }
+
+        int maxCol = column + 1;
+        if (maxCol > sizeGame - 1) {
+            maxCol = sizeGame - 1;
+        }
+
+        for (int i = minRow; i < maxRow + 1; i++) {
+            for (int j = minCol; j < maxCol + 1; j++) {
+                cell = listLine.get(i).getListCells().get(j);
+
+                if (!(cell.getState() == CellState.BOMB.ordinal()) && !(cell.getState() == CellState.DISCOVERED.ordinal())) {
+                    cell.setState(CellState.DISCOVERED.ordinal());
+                    cell.affichageValeur();
+                    if (cell.getNbBombAround() == 0) {
+                        showCellUntilDiscoverBomb(cell);
+                    }
+                }
+            }
+        }
+    }
+
+    private int[] findPositionOfCellInBoard(Cell cell_) {
+        int[] positions = new int[2];
+
+        for (RowCells rowCells : listLine) {
+            positions[1] = 0;
+
+            for (Cell cell : rowCells.getListCells()) {
+                if (cell == cell_) {
+                    return positions;
+                }
+
+                positions[1]++;
+            }
+
+            positions[0]++;
+        }
+
+        return positions;
+    }
+
+    public void gameOver() {
+        for (RowCells row : this.listLine) {
+            for (Cell cell : row.getListCells()) {
+                if (!cell.isBomb() || !(cell.getState() == CellState.BOMB.ordinal())) {
+                } else {
+                    cell.displayBomb();
+                }
+            }
+        }
+    }
+
+    public void endGame(Cell cellClicked) {
+        boolean isGameEnded = true;
+
+        for (RowCells rowCells : this.listLine) {
+            for (Cell cell : rowCells.getListCells()) {
+                if (cell.isBomb() || (cell.getState() == CellState.DISCOVERED.ordinal()) || cellClicked == cell) {
+                } else isGameEnded = false;
+            }
+        }
+        // TODO : Handle the end of the game
+        if (isGameEnded) {
+        }
     }
 
 }
