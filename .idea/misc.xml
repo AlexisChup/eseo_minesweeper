@@ -12,8 +12,11 @@
         <entry key="..\:/Users/alexi/AndroidStudioProjects/eseo_minesweeper/app/src/main/res/layout/activity_main.xml" value="0.176" />
         <entry key="..\:/Users/alexi/AndroidStudioProjects/eseo_minesweeper/app/src/main/res/layout/activity_ranking.xml" value="0.22826086956521738" />
         <entry key="..\:/Users/alexi/AndroidStudioProjects/eseo_minesweeper/app/src/main/res/layout/fragment_case_game.xml" value="0.13645833333333332" />
+        <entry key="..\:/Users/alexi/AndroidStudioProjects/eseo_minesweeper/app/src/main/res/layout/fragment_cell.xml" value="0.1" />
         <entry key="..\:/Users/alexi/AndroidStudioProjects/eseo_minesweeper/app/src/main/res/layout/fragment_frag_ligne.xml" value="0.176" />
         <entry key="..\:/Users/alexi/AndroidStudioProjects/eseo_minesweeper/app/src/main/res/layout/fragment_minesweeper_fragment.xml" value="0.11614583333333334" />
+        <entry key="..\:/Users/alexi/AndroidStudioProjects/eseo_minesweeper/app/src/main/res/layout/popup.xml" value="0.1" />
+        <entry key="..\:/Users/alexi/AndroidStudioProjects/eseo_minesweeper/app/src/main/res/layout/popup_end.xml" value="0.1" />
         <entry key="..\:/Users/alexi/AndroidStudioProjects/eseo_minesweeper/app/src/main/res/layout/text_row_item.xml" value="0.22826086956521738" />
       </map>
     </option>
