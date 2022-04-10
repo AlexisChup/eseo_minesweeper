@@ -2,6 +2,7 @@ package com.example.eseo_minesweeper.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.ImageButton;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -46,6 +47,7 @@ public class RankingActivity extends AppCompatActivity {
         Bundle bundle = mainActivityIntent.getExtras();
         //Récupération des données sérialisées grâce à la clé "LIST_PLAYER_RANKING" (créée dans MainActivity)
         playerRankingList = (ArrayList<PlayerRanking>) bundle.getSerializable("LIST_PLAYER_RANK");
+        Log.e("what", String.valueOf(playerRankingList.size()));
 
         //On instancie un nouveau CustomAdapter à partir des données récupérées
         customAdapter = new CustomAdapter((playerRankingList));

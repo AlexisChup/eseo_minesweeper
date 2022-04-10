@@ -29,15 +29,66 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintHeight_default="percent"
         app:layout_constraintHeight_percent="0.07"/>
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:id="@+id/header_ranking"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        app:layout_constraintTop_toBottomOf="@+id/textView"
+        tools:ignore="MissingConstraints">
+
+        <!-- Réprésentation d'une ligne du RecyclerView - utilisé par le customAdapter-->
+        <TextView
+            android:id="@+id/textViewScoreHeader"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="Score"
+            android:textAlignment="center"
+            android:textSize="@dimen/ranking_text_size"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintWidth_default="percent"
+            app:layout_constraintWidth_percent="0.33" />
+
+        <TextView
+            android:id="@+id/textViewSecondsHeader"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="Seconds"
+            android:textAlignment="center"
+            android:textSize="@dimen/ranking_text_size"
+            app:layout_constraintLeft_toRightOf="@+id/textViewScoreHeader"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintWidth_default="percent"
+            app:layout_constraintWidth_percent="0.33" />
+
+        <TextView
+            android:id="@+id/textViewMinutesHeader"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="Minutes"
+            android:textAlignment="center"
+            android:textSize="@dimen/ranking_text_size"
+            app:layout_constraintLeft_toRightOf="@+id/textViewSecondsHeader"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintWidth_default="percent"
+            app:layout_constraintWidth_percent="0.33" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 <!-- RecyclerView permettant d'afficher le classement -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerView"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        app:layout_constraintLeft_toLeftOf="parent"
+        android:layout_marginTop="70px"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintHeight_default="percent"
-        app:layout_constraintHeight_percent="0.85"/>
+        app:layout_constraintHeight_percent="0.85"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/header_ranking" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

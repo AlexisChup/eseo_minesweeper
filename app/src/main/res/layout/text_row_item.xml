@@ -7,7 +7,7 @@
 
 <!-- Réprésentation d'une ligne du RecyclerView - utilisé par le customAdapter-->
     <TextView
-        android:id="@+id/textViewRank"
+        android:id="@+id/textViewScore"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
@@ -16,30 +16,30 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintWidth_default="percent"
-        app:layout_constraintWidth_percent="0.10"/>
+        app:layout_constraintWidth_percent="0.33"/>
 
     <TextView
-        android:id="@+id/textViewPlayer"
+        android:id="@+id/textViewSeconds"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:textAlignment="center"
+        android:textSize="@dimen/ranking_text_size"
+        app:layout_constraintLeft_toRightOf="@+id/textViewScore"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintWidth_default="percent"
+        app:layout_constraintWidth_percent="0.33" />
+
+    <TextView
+        android:id="@+id/textViewMinutes"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:textAlignment="center"
         android:textSize="@dimen/ranking_text_size"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintLeft_toRightOf="@+id/textViewRank"
+        app:layout_constraintLeft_toRightOf="@+id/textViewSeconds"
         app:layout_constraintWidth_default="percent"
-        app:layout_constraintWidth_percent="0.60" />
-
-    <TextView
-        android:id="@+id/textViewTime"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:textAlignment="center"
-        android:textSize="@dimen/ranking_text_size"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintLeft_toRightOf="@+id/textViewPlayer"
-        app:layout_constraintWidth_default="percent"
-        app:layout_constraintWidth_percent="0.30" />
+        app:layout_constraintWidth_percent="0.33" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
