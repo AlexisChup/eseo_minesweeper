@@ -478,6 +478,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         // Insérer les données dans la grille
         insertDataInGrid();
         initTimer();
+        nbBombs = difficulty * 2;
+        txtVNbBombs.setText(String.valueOf(nbBombs));
     }
 
     private int[] findPositionOfCellInBoard(Cell cell_) {
