@@ -16,7 +16,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
-import com.example.eseo_minesweeper.CellState;
 import com.example.eseo_minesweeper.PlayerRanking;
 import com.example.eseo_minesweeper.R;
 import com.example.eseo_minesweeper.fragments.Cell;
@@ -162,6 +161,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
                 btQstMark.setImageResource(R.drawable.question_mark_off);
                 btReveal.setImageResource(R.drawable.reveal_off);
+
+                btReveal.setTag("flag");
             }
         });
 
@@ -173,6 +174,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
                 btFlag.setImageResource(R.drawable.flag_off);
                 btReveal.setImageResource(R.drawable.reveal_off);
+                btReveal.setTag("question");
             }
         });
 
@@ -184,8 +186,11 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
                 btFlag.setImageResource(R.drawable.flag_off);
                 btQstMark.setImageResource(R.drawable.question_mark_off);
+                btReveal.setTag("reveal");
             }
         });
+
+        btReveal.setTag("reveal");
 
         listLine = new ArrayList<>();
         addRowsOfCells();
@@ -347,8 +352,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
             cell = listLine.get(randomRow).getListCells().get(randomColumn);
 
-            if (cell.getState() != CellState.BOMB.ordinal()) { ;
-                cell.becomeBomb();
+            if (!cell.isBomb()) { ;
+                cell.setBomb(true);
                 isBombPlaced = true;
             }
         }
@@ -365,7 +370,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             for (Cell cell : row.getListCells()) {
                 int nbBombsAround = calculateBombsAroundForOneCell(numRow, numCell);
 
-                if (!(cell.getState() == CellState.BOMB.ordinal())) {
+                if (!cell.isBomb()) {
                     cell.setNbBombAround(nbBombsAround);
                 }
 
@@ -402,9 +407,11 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             maxCol = sizeGame - 1;
         }
 
-        for (int i = minRow; i < maxRow + 1; i++) {
-            for (int j = minCol; j < maxCol + 1; j++) {
-                if (listLine.get(i).getListCells().get(j).getState() == CellState.BOMB.ordinal()) {
+        for (int row = minRow; row < maxRow + 1; row++) {
+            ArrayList<Cell> rowCells = listLine.get(row).getListCells();
+
+            for (int column = minCol; column < maxCol + 1; column++) {
+                if (rowCells.get(column).isBomb()) {
                     nbBombsAround++;
                 }
             }
@@ -450,9 +457,10 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             for (int j = minCol; j < maxCol + 1; j++) {
                 cell = listLine.get(i).getListCells().get(j);
 
-                if (!(cell.getState() == CellState.BOMB.ordinal()) && !(cell.getState() == CellState.DISCOVERED.ordinal())) {
-                    cell.setState(CellState.DISCOVERED.ordinal());
-                    cell.affichageValeur();
+                if (!cell.isBomb() && cell.getStateCell() == Cell.HIDDEN) {
+                    cell.setStateCell(Cell.HIDDEN);
+                    cell.revealCell();
+
                     if (cell.getNbBombAround() == 0) {
                         showCellUntilDiscoverBomb(cell);
                     }
@@ -481,24 +489,21 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         return positions;
     }
 
-    public void gameOver() {
+    public void displayAllBombs() {
         for (RowCells row : this.listLine) {
             for (Cell cell : row.getListCells()) {
-                if (!cell.isBomb() || !(cell.getState() == CellState.BOMB.ordinal())) {
-                } else {
+                if(cell.isBomb() && cell.getStateCell() == Cell.HIDDEN) {
                     cell.displayBomb();
                 }
             }
         }
     }
 
-    public void endGame(Cell cellClicked) {
+    public void checkGameIsOver(Cell cellClicked) {
         boolean isGameEnded = true;
 
         for (RowCells rowCells : this.listLine) {
             for (Cell cell : rowCells.getListCells()) {
-                if (cell.isBomb() || (cell.getState() == CellState.DISCOVERED.ordinal()) || cellClicked == cell) {
-                } else isGameEnded = false;
             }
         }
         // TODO : Handle the end of the game
