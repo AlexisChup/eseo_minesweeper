@@ -49,7 +49,8 @@ public class RowCells extends Fragment {
         listCells = new ArrayList<>();
 
         for (int i = 0; i < this.nbColumns; i++) {
-            listCells.add(Cell.newInstance(this.nbColumns));
+            // *2 because nbBombs = nbCol *2
+            listCells.add(Cell.newInstance(this.nbColumns * 2));
         }
 
         for (Cell frag : listCells) {

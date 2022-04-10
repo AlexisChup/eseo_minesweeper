@@ -33,11 +33,11 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 public class MainActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
-
     //---------------------------- Déclaration des variables ----------------------------
     private boolean mute = false;
-    private int btState = 2; // 0 -> FLAG || 1 -> ? || 2 -> REVEAL
+    private int btState = 2;
     private int difficulty = 8;
+    private int nbBombs = difficulty*2;
 
     //Barre boutons Supérieure
     private ImageButton btMute;
@@ -114,19 +114,13 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         btReveal = findViewById(R.id.btReveal);
         btReveal.setImageResource(R.drawable.reveal_on);
 
-        btRetryGame = findViewById(R.id.restartButtonGame);
-        btQuitGame = findViewById(R.id.leaveButtonGame);
-
         //Paramétrage spinner
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this, R.array.levels, android.R.layout.simple_spinner_item);
-
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-
         spinLevels.setAdapter(adapter);
 
         //Musique de fond
         mediaPlayer = MediaPlayer.create(this, R.raw.music);
-
         mediaPlayer.start();
         mediaPlayer.setLooping(true);
 
@@ -150,8 +144,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         btRank.setOnClickListener(v -> {
             Intent rankingAct = new Intent(MainActivity.this, RankingActivity.class);
             Bundle bundle = new Bundle();
-            PlayerRanking playerRanking = new PlayerRanking(nbSeconds);
-            playerRankingList.add(playerRanking);
             bundle.putSerializable("LIST_PLAYER_RANK", playerRankingList); //ajout de la liste des joueurs
             rankingAct.putExtras(bundle);
             startActivity(rankingAct);
@@ -159,29 +151,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
         //-------------- Recommencer la partie --------------
         btRetry.setOnClickListener(v -> {
-            // Lit le niveau sélectionné
-            spinLevelsInt = spinLevels.getSelectedItemPosition();
-            if (spinLevelsInt == 1) {
-                difficulty = 16;
-            }
-            else if (spinLevelsInt == 2) {
-                difficulty = 24;
-            }
-            else {
-                difficulty = 8;
-            }
-            // Supprime les fragments
-            removeFragment();
-            // Création d'une nouvelle grille
-            addRowsOfCells();
-            FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-            for (RowCells frag : listLine) {
-                ft.add(R.id.containerLigne, frag, null);
-            }
-
-            ft.commit();
-            // Insérer les données dans la grille
-            insertDataInGrid();
+            restartGame();
         });
 
         //-------------- Quitter l'app --------------
@@ -236,7 +206,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         ft.commit();
 
         // Add number of bombs
-        txtVNbBombs.setText(String.valueOf(difficulty));
+        txtVNbBombs.setText(String.valueOf(nbBombs));
 
         // Timer
         initTimer();
@@ -247,11 +217,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         super.onResume();
         setupBombs();
         setupNbBombsAroundForEachCell();
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
     }
 
     //---------------------------- ---------------------------- ----------------------------
@@ -281,26 +246,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 });
             }
         }, 1000, 1000);
-    }
-
-    public void resumeTimer () {
-        if(timer == null) {
-            timer = new Timer();
-            timer.scheduleAtFixedRate(new TimerTask() {
-                @Override
-                public void run() {
-                    runOnUiThread(new Runnable()
-                    {
-                        @Override
-                        public void run()
-                        {
-                            txtVTime.setText(formatTimerDisplay());
-                            nbSeconds++;
-                        }
-                    });
-                }
-            }, 1000, 1000);
-        }
     }
 
     public String formatTimerDisplay () {
@@ -336,22 +281,16 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             playerRankingList = new ArrayList<>();
         }
     }
-    //---------------------------- ---------------------------- ----------------------------
 
     //---------------------------- Sélection des niveaux ----------------------------
     public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
         Toast.makeText(MainActivity.this, (String) parent.getItemAtPosition(pos), Toast.LENGTH_SHORT).show();
-        //TODO Changer le mode de jeu après validation
+        restartGame();
     }
 
     public void onNothingSelected(AdapterView<?> parent) {
     }
     //---------------------------- ---------------------------- ----------------------------
-
-    public void onGameWon(){
-        saveSharedData();
-    }
-
     /* Remplissage de la nouvelle grille avec du delay sinon
      l'application n'a pas le temps de récupérer les informations
         donc elle génère une grille vide */
@@ -383,7 +322,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     }
 
     private void setupBombs() {
-        for (int i = 0; i < difficulty*2; i++) {
+        for (int i = 0; i < nbBombs; i++) {
             placeRandomBomb();
         }
     }
@@ -408,7 +347,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         }
     }
 
-
     private void setupNbBombsAroundForEachCell() {
         int numRow = 0;
         int numCell = 0;
@@ -428,9 +366,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             numRow++;
         }
     }
-
-
-
 
     private int calculateBombsAroundForOneCell(int numRow, int numCell) {
         int nbBombsAround = 0;
@@ -518,6 +453,33 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         }
     }
 
+    private void restartGame () {
+        // Lit le niveau sélectionné
+        spinLevelsInt = spinLevels.getSelectedItemPosition();
+        if (spinLevelsInt == 1) {
+            difficulty = 16;
+        }
+        else if (spinLevelsInt == 2) {
+            difficulty = 24;
+        }
+        else {
+            difficulty = 8;
+        }
+        // Supprime les fragments
+        removeFragment();
+        // Création d'une nouvelle grille
+        addRowsOfCells();
+        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+        for (RowCells frag : listLine) {
+            ft.add(R.id.containerLigne, frag, null);
+        }
+
+        ft.commit();
+        // Insérer les données dans la grille
+        insertDataInGrid();
+        initTimer();
+    }
+
     private int[] findPositionOfCellInBoard(Cell cell_) {
         int[] positions = new int[2];
 
@@ -544,21 +506,72 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 if(cell.isBomb()) {
                     cell.displayBomb();
                 }
+
+                cell.setGameEnded(true);
             }
         }
 
         createPopupEndGame();
     }
 
-    public void checkGameIsOver(Cell cellClicked) {
-        boolean isGameEnded = true;
+    public void checkGameIsWon() {
+        Log.e("call ", "callaprent");
+        boolean isGameWon = true;
 
         for (RowCells rowCells : this.listLine) {
             for (Cell cell : rowCells.getListCells()) {
+                if(cell.isBomb() && cell.getStateCell() != Cell.FLAG) {
+                    isGameWon = false;
+                    break;
+                }
             }
         }
-        // TODO : Handle the end of the game
-        if (isGameEnded) {
+        if (isGameWon) {
+            PlayerRanking playerRanking = new PlayerRanking(nbSeconds);
+            playerRankingList.add(playerRanking);
+            saveSharedData();
+
+            AlertDialog.Builder builder
+                    = new AlertDialog
+                    .Builder(MainActivity.this);
+
+            builder.setTitle("Vous avez gagner la partie !");
+            builder.setMessage("Recommencer une partie ?");
+            builder.setCancelable(false);
+
+            builder
+                    .setPositiveButton(
+                            "Oui",
+                            new DialogInterface
+                                    .OnClickListener() {
+
+                                @Override
+                                public void onClick(DialogInterface dialog,
+                                                    int which)
+                                {
+                                    restartGame();
+                                }
+                            });
+
+            builder
+                    .setNegativeButton(
+                            "Non",
+                            new DialogInterface
+                                    .OnClickListener() {
+
+                                @Override
+                                public void onClick(DialogInterface dialog,
+                                                    int which)
+                                {
+                                    dialog.cancel();
+                                }
+                            });
+
+            // Create the Alert dialog
+            AlertDialog alertDialog = builder.create();
+
+            // Show the Alert Dialog box
+            alertDialog.show();
         }
     }
 
@@ -581,36 +594,10 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                             public void onClick(DialogInterface dialog,
                                                 int which)
                             {
-
-                                // Lit le niveau sélectionné
-                                spinLevelsInt = spinLevels.getSelectedItemPosition();
-                                if (spinLevelsInt == 1) {
-                                    difficulty = 16;
-                                }
-                                else if (spinLevelsInt == 2) {
-                                    difficulty = 24;
-                                }
-                                else {
-                                    difficulty = 8;
-                                }
-                                // Supprime les fragments
-                                removeFragment();
-                                // Création d'une nouvelle grille
-                                addRowsOfCells();
-                                FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-                                for (RowCells frag : listLine) {
-                                    ft.add(R.id.containerLigne, frag, null);
-                                }
-
-                                ft.commit();
-                                // Insérer les données dans la grille
-                                insertDataInGrid();
+                                restartGame();
                             }
                         });
 
-        // Set the Negative button with No name
-        // OnClickListener method is use
-        // of DialogInterface interface.
         builder
                 .setNegativeButton(
                         "Non",
@@ -621,9 +608,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                             public void onClick(DialogInterface dialog,
                                                 int which)
                             {
-
-                                // If user click no
-                                // then dialog box is canceled.
                                 dialog.cancel();
                             }
                         });
