@@ -33,7 +33,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     //---------------------------- Déclaration des variables ----------------------------
     private boolean mute = false;
     private int btState = 2; // 0 -> FLAG || 1 -> ? || 2 -> REVEAL
-    private int difficulty = 16;
+    private int difficulty = 8;
 
     //Barre boutons Supérieure
     private ImageButton btMute;
@@ -52,6 +52,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     //Liste déroulante
     private Spinner spinLevels;
+    private String spinLevelsText;
+    private int spinLevelsInt;
 
     //MediaPlayer
     private MediaPlayer mediaPlayer;
@@ -125,7 +127,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         super.onResume();
         setupBombs();
         setupNbBombsAroundForEachCell();
-
+            btFlag.setImageResource(R.drawable.flag_on);
         //-------------- Son de l'app --------------
         btMute.setOnClickListener(v -> {
             mute = !mute;
@@ -150,6 +152,16 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
         //-------------- Recommencer la partie --------------
         btRetry.setOnClickListener(v -> {
+            spinLevelsInt = spinLevels.getSelectedItemPosition();
+            if (spinLevelsInt == 1) {
+                difficulty = 16;
+            }
+            else if (spinLevelsInt == 2) {
+                difficulty = 24;
+            }
+            else {
+                difficulty = 8;
+            }
             //TODO Recommencer une nouvelle partie après validation
             for (Fragment fragment : getSupportFragmentManager().getFragments()) {
                 for (Fragment childFragment : fragment.getChildFragmentManager().getFragments()) {
@@ -209,9 +221,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 btQstMark.setImageResource(R.drawable.question_mark_off);
             }
         });
-
-//        setupBombs();
-//        setupNbBombsAroundForEachCell();
     }
     //---------------------------- ---------------------------- ----------------------------
 
@@ -260,7 +269,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     }
 
     private void setupBombs() {
-        for (int i = 0; i < difficulty; i++) {
+        for (int i = 0; i < difficulty*2; i++) {
             placeRandomBomb();
         }
     }
