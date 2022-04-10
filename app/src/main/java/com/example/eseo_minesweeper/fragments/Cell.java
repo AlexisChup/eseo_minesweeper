@@ -23,12 +23,21 @@ public class Cell extends Fragment {
     public static final int REVEALED = 400;
     public static final int QUESTION = 500;
     public static final int FLAG = 600;
+    public static final int BOMB = 700;
 
 
+    private boolean isGameEnded = false;
     private int nbBombAround = 0;
     private int stateCell = HIDDEN;
 
-    private boolean isGameEnded = false;
+    public boolean isGameEnded() {
+        return isGameEnded;
+    }
+
+    public void setGameEnded(boolean gameEnded) {
+        isGameEnded = gameEnded;
+    }
+
     private boolean isBomb = false;
 
     private Integer nbCellsInGame;
@@ -96,6 +105,11 @@ public class Cell extends Fragment {
                         if(stateCell != REVEALED && nbOfFlagLeft != 0 && stateCell != FLAG) {
                             displayFlag();
                             setNbOfFlagLeft(nbOfFlagLeft - 1);
+
+                            if(nbOfFlagLeft - 1 == 0) {
+                                Log.e("call ", "callchild");
+                                ((MainActivity) getActivity()).checkGameIsWon();
+                            }
                         } else if(stateCell == FLAG) {
                             displayHiddenCell();
                             setNbOfFlagLeft(nbOfFlagLeft + 1);
@@ -128,8 +142,6 @@ public class Cell extends Fragment {
                     default:
                         Log.e("CLICK_CELL", "UserClickAction undefined");
                 }
-
-                ((MainActivity) getActivity()).checkGameIsOver(this);
             }
         });
 
@@ -138,7 +150,7 @@ public class Cell extends Fragment {
         int widthPixelsScreen = Resources.getSystem().getDisplayMetrics().widthPixels;
 
         LinearLayout.LayoutParams layout_lp = new LinearLayout.LayoutParams(
-                (int)(widthPixelsScreen/ nbCellsInGame),
+                (int)(widthPixelsScreen/ nbCellsInGame * 2),
                 LinearLayout.LayoutParams.WRAP_CONTENT
         );
 
@@ -209,7 +221,7 @@ public class Cell extends Fragment {
     }
 
     public void displayBomb () {
-        this.setStateCell(Cell.REVEALED);
+        this.setStateCell(Cell.BOMB);
         this.cellImage.setImageResource(R.drawable.bomb);
     }
 }
