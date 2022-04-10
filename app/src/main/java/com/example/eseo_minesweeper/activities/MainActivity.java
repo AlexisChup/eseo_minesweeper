@@ -1,9 +1,12 @@
 package com.example.eseo_minesweeper.activities;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.media.MediaPlayer;
 import android.os.Bundle;
+import android.os.Handler;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -12,6 +15,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
@@ -33,7 +37,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     //---------------------------- Déclaration des variables ----------------------------
     private boolean mute = false;
     private int btState = 2; // 0 -> FLAG || 1 -> ? || 2 -> REVEAL
-    private int difficulty = 16;
+    private int difficulty = 8;
 
     //Barre boutons Supérieure
     private ImageButton btMute;
@@ -52,6 +56,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     //Liste déroulante
     private Spinner spinLevels;
+    private String spinLevelsText;
+    private int spinLevelsInt;
 
     //MediaPlayer
     private MediaPlayer mediaPlayer;
@@ -69,6 +75,15 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     //Timer
     Timer timer;
     int nbSeconds;
+
+    //Popup
+    private AlertDialog.Builder popupEnd;
+    private AlertDialog dialogPopupEnd;
+    private ImageButton btRetryGame;
+    private ImageButton btQuitGame;
+    private TextView retryText;
+    private TextView LooseText;
+    private TextView LeaveText;
 
     //---------------------------- ---------------------------- ----------------------------
 
@@ -98,6 +113,9 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
         btReveal = findViewById(R.id.btReveal);
         btReveal.setImageResource(R.drawable.reveal_on);
+
+        btRetryGame = findViewById(R.id.restartButtonGame);
+        btQuitGame = findViewById(R.id.leaveButtonGame);
 
         //Paramétrage spinner
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this, R.array.levels, android.R.layout.simple_spinner_item);
@@ -141,14 +159,29 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
         //-------------- Recommencer la partie --------------
         btRetry.setOnClickListener(v -> {
-            //TODO Recommencer une nouvelle partie après validation
-            for (Fragment fragment : getSupportFragmentManager().getFragments()) {
-                for (Fragment childFragment : fragment.getChildFragmentManager().getFragments()) {
-                    fragment.getChildFragmentManager().beginTransaction().remove(childFragment).commit();
-                }
-                getSupportFragmentManager().beginTransaction().remove(fragment).commit();
+            // Lit le niveau sélectionné
+            spinLevelsInt = spinLevels.getSelectedItemPosition();
+            if (spinLevelsInt == 1) {
+                difficulty = 16;
             }
-            restartGame();
+            else if (spinLevelsInt == 2) {
+                difficulty = 24;
+            }
+            else {
+                difficulty = 8;
+            }
+            // Supprime les fragments
+            removeFragment();
+            // Création d'une nouvelle grille
+            addRowsOfCells();
+            FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+            for (RowCells frag : listLine) {
+                ft.add(R.id.containerLigne, frag, null);
+            }
+
+            ft.commit();
+            // Insérer les données dans la grille
+            insertDataInGrid();
         });
 
         //-------------- Quitter l'app --------------
@@ -319,10 +352,26 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         saveSharedData();
     }
 
-    public void restartGame() {
-        Intent intent = getIntent();
-        finish();
-        startActivity(intent);
+    /* Remplissage de la nouvelle grille avec du delay sinon
+     l'application n'a pas le temps de récupérer les informations
+        donc elle génère une grille vide */
+    private void insertDataInGrid() {
+        Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            public void run() {
+                setupBombs();
+                setupNbBombsAroundForEachCell();
+            }
+        }, 50);
+    }
+
+    private void removeFragment(){
+        for (Fragment fragment : getSupportFragmentManager().getFragments()) {
+            for (Fragment childFragment : fragment.getChildFragmentManager().getFragments()) {
+                fragment.getChildFragmentManager().beginTransaction().remove(childFragment).commit();
+            }
+            getSupportFragmentManager().beginTransaction().remove(fragment).commit();
+        }
     }
 
     private void addRowsOfCells() {
@@ -334,7 +383,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     }
 
     private void setupBombs() {
-        for (int i = 0; i < difficulty; i++) {
+        for (int i = 0; i < difficulty*2; i++) {
             placeRandomBomb();
         }
     }
@@ -497,6 +546,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 }
             }
         }
+
+        createPopupEndGame();
     }
 
     public void checkGameIsOver(Cell cellClicked) {
@@ -509,6 +560,79 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         // TODO : Handle the end of the game
         if (isGameEnded) {
         }
+    }
+
+    public void createPopupEndGame(){
+        AlertDialog.Builder builder
+                = new AlertDialog
+                .Builder(MainActivity.this);
+
+        builder.setMessage("Recommencer une partie ?");
+        builder.setTitle("Vous avez perdu !");
+        builder.setCancelable(false);
+
+        builder
+                .setPositiveButton(
+                        "Oui",
+                        new DialogInterface
+                                .OnClickListener() {
+
+                            @Override
+                            public void onClick(DialogInterface dialog,
+                                                int which)
+                            {
+
+                                // Lit le niveau sélectionné
+                                spinLevelsInt = spinLevels.getSelectedItemPosition();
+                                if (spinLevelsInt == 1) {
+                                    difficulty = 16;
+                                }
+                                else if (spinLevelsInt == 2) {
+                                    difficulty = 24;
+                                }
+                                else {
+                                    difficulty = 8;
+                                }
+                                // Supprime les fragments
+                                removeFragment();
+                                // Création d'une nouvelle grille
+                                addRowsOfCells();
+                                FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+                                for (RowCells frag : listLine) {
+                                    ft.add(R.id.containerLigne, frag, null);
+                                }
+
+                                ft.commit();
+                                // Insérer les données dans la grille
+                                insertDataInGrid();
+                            }
+                        });
+
+        // Set the Negative button with No name
+        // OnClickListener method is use
+        // of DialogInterface interface.
+        builder
+                .setNegativeButton(
+                        "Non",
+                        new DialogInterface
+                                .OnClickListener() {
+
+                            @Override
+                            public void onClick(DialogInterface dialog,
+                                                int which)
+                            {
+
+                                // If user click no
+                                // then dialog box is canceled.
+                                dialog.cancel();
+                            }
+                        });
+
+        // Create the Alert dialog
+        AlertDialog alertDialog = builder.create();
+
+        // Show the Alert Dialog box
+        alertDialog.show();
     }
 
 }
