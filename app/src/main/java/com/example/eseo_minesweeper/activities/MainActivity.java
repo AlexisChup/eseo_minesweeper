@@ -26,6 +26,8 @@ import com.google.gson.reflect.TypeToken;
 
 import java.util.ArrayList;
 import java.util.Random;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class MainActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
 
@@ -64,6 +66,10 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     //Fragment
     private ArrayList<RowCells> listLine;
+
+    //Timer
+    Timer timer;
+    int nbSeconds;
 
     //---------------------------- ---------------------------- ----------------------------
 
@@ -109,19 +115,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
         //Récupération des données des SharedPreferences
         loadSharedData();
-
-        listLine = new ArrayList<>();
-        addRowsOfCells();
-        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-        for (RowCells frag : listLine) {
-            ft.add(R.id.containerLigne, frag, null);
-        }
-        ft.commit();
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
 
         //-------------- Son de l'app --------------
         btMute.setOnClickListener(v -> {
@@ -194,10 +187,96 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             }
         });
 
+        listLine = new ArrayList<>();
+        addRowsOfCells();
+        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+        for (RowCells frag : listLine) {
+            ft.add(R.id.containerLigne, frag, null);
+        }
+        ft.commit();
+
+        // Add number of bombs
+        txtVNbBombs.setText(String.valueOf(difficulty));
+
+        // Timer
+        initTimer();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        resumeTimer();
         setupBombs();
         setupNbBombsAroundForEachCell();
     }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        destroyTimer();
+    }
+
     //---------------------------- ---------------------------- ----------------------------
+    public void destroyTimer () {
+        if(timer != null) {
+            timer.cancel();
+            timer.purge();
+            timer = null;
+        }
+    }
+
+    public void initTimer () {
+        destroyTimer();
+        nbSeconds = 0;
+        timer = new Timer();
+        timer.scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                runOnUiThread(new Runnable()
+                {
+                    @Override
+                    public void run()
+                    {
+                        txtVTime.setText(formatTimerDisplay());
+                        nbSeconds++;
+                    }
+                });
+            }
+        }, 1000, 1000);
+    }
+
+    public void resumeTimer () {
+        if(timer == null) {
+            timer = new Timer();
+            timer.scheduleAtFixedRate(new TimerTask() {
+                @Override
+                public void run() {
+                    runOnUiThread(new Runnable()
+                    {
+                        @Override
+                        public void run()
+                        {
+                            txtVTime.setText(formatTimerDisplay());
+                            nbSeconds++;
+                        }
+                    });
+                }
+            }, 1000, 1000);
+        }
+    }
+
+    public String formatTimerDisplay () {
+        int seconds = nbSeconds%60;
+        int minutes = (int) (nbSeconds/60);
+
+        String secondsFormat = String.valueOf(seconds);
+        String minutesFormat = String.valueOf(minutes);
+
+        secondsFormat = seconds < 10 ? "0"+secondsFormat : secondsFormat;
+        minutesFormat = minutes < 10 ? "0"+minutesFormat : minutesFormat;
+
+        return minutesFormat+":"+secondsFormat;
+    }
 
     //---------------------------- SharedPreferences methods ----------------------------
     private void saveSharedData() {
