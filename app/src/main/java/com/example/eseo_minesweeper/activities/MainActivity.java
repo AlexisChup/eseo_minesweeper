@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.media.MediaPlayer;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -122,6 +123,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     @Override
     protected void onResume() {
         super.onResume();
+        setupBombs();
+        setupNbBombsAroundForEachCell();
 
         //-------------- Son de l'app --------------
         btMute.setOnClickListener(v -> {
@@ -154,7 +157,20 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 }
                 getSupportFragmentManager().beginTransaction().remove(fragment).commit();
             }
-            restartGame();
+            addRowsOfCells();
+            FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+            for (RowCells frag : listLine) {
+                ft.add(R.id.containerLigne, frag, null);
+            }
+            ft.commit();
+            Handler handler = new Handler();
+            handler.postDelayed(new Runnable() {
+                public void run() {
+                    setupBombs();
+                    setupNbBombsAroundForEachCell();
+                }
+            }, 50);
+
         });
 
         //-------------- Quitter l'app --------------
@@ -194,8 +210,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             }
         });
 
-        setupBombs();
-        setupNbBombsAroundForEachCell();
+//        setupBombs();
+//        setupNbBombsAroundForEachCell();
     }
     //---------------------------- ---------------------------- ----------------------------
 
@@ -233,12 +249,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     public void onGameWon(){
         saveSharedData();
-    }
-
-    public void restartGame() {
-        Intent intent = getIntent();
-        finish();
-        startActivity(intent);
     }
 
     private void addRowsOfCells() {
