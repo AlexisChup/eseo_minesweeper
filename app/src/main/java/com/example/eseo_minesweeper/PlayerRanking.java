@@ -4,40 +4,38 @@ package com.example.eseo_minesweeper;
 public class PlayerRanking implements java.io.Serializable{
 
     //Déclaration des variables
-    private String rank;
-    private String name;
-    private String time;
+    private String score;
+    private String seconds;
+    private String minutes;
 
     //Constructeurs de la classe
-    public PlayerRanking(String _rank, String _name, String _time){
-        this.rank = _rank;
-        this.name = _name;
-        this.time = _time;
+    public PlayerRanking(int _score){
+        this.score = String.valueOf(_score);
+        setSeconds(String.valueOf(_score%60));
+        setMinutes(String.valueOf((int) _score/60));
     }
 
-    //Les Setters et Getters pour chaque variable
-    public void setName(String name) {
-        this.name = name;
+    public void setSeconds(String seconds) {
+        this.seconds = seconds;
     }
 
-    public void setRank(String rank) {
-        this.rank = rank;
+    public void setScore(String score) {
+        this.score = score;
     }
 
-    public void setTime(String time) {
-        this.time = time;
+    public void setMinutes(String minutes) {
+        this.minutes = minutes;
     }
 
-    public String getRank() {
-        return rank;
+    public String getScore() {
+        return score;
     }
 
-    public String getName() {
-        return name;
+    public String getSeconds() {
+        return seconds;
     }
 
-    public String getTime() {
-        return time;
+    public String getMinutes() {
+        return minutes;
     }
-
 }

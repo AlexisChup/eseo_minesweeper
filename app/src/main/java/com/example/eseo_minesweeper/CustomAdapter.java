@@ -51,16 +51,16 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.MyViewHold
         public MyViewHolder(@NonNull View itemView) {
             super(itemView);
 
-            mRank = itemView.findViewById(R.id.textViewRank);
-            mPlayerName = itemView.findViewById(R.id.textViewPlayer);
-            mTime = itemView.findViewById(R.id.textViewTime);
+            mRank = itemView.findViewById(R.id.textViewScore);
+            mPlayerName = itemView.findViewById(R.id.textViewSeconds);
+            mTime = itemView.findViewById(R.id.textViewMinutes);
         }
 
         //On affiche les infos correspondantes à chaque TextView
         public void display(PlayerRanking playerRanking){
-            mRank.setText(playerRanking.getRank());
-            mPlayerName.setText(playerRanking.getName());
-            mTime.setText(playerRanking.getTime());
+            mRank.setText(playerRanking.getScore());
+            mPlayerName.setText(playerRanking.getSeconds());
+            mTime.setText(playerRanking.getMinutes());
         }
     }
 }

@@ -108,6 +108,8 @@ public class Cell extends Fragment {
                         } else if(stateCell == FLAG) {
                             displayQuestionMark();
                             setNbOfFlagLeft(nbOfFlagLeft + 1);
+                        } else if(stateCell == QUESTION) {
+                            displayHiddenCell();
                         }
 
                         break;

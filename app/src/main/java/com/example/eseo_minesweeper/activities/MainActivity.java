@@ -132,6 +132,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         btRank.setOnClickListener(v -> {
             Intent rankingAct = new Intent(MainActivity.this, RankingActivity.class);
             Bundle bundle = new Bundle();
+            PlayerRanking playerRanking = new PlayerRanking(nbSeconds);
+            playerRankingList.add(playerRanking);
             bundle.putSerializable("LIST_PLAYER_RANK", playerRankingList); //ajout de la liste des joueurs
             rankingAct.putExtras(bundle);
             startActivity(rankingAct);
@@ -210,7 +212,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     @Override
     protected void onResume() {
         super.onResume();
-        resumeTimer();
         setupBombs();
         setupNbBombsAroundForEachCell();
     }
@@ -218,7 +219,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     @Override
     protected void onPause() {
         super.onPause();
-        destroyTimer();
     }
 
     //---------------------------- ---------------------------- ----------------------------
@@ -492,7 +492,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     public void displayAllBombs() {
         for (RowCells row : this.listLine) {
             for (Cell cell : row.getListCells()) {
-                if(cell.isBomb() && cell.getStateCell() == Cell.HIDDEN) {
+                if(cell.isBomb()) {
                     cell.displayBomb();
                 }
             }
