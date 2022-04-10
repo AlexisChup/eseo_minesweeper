@@ -13,6 +13,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
@@ -68,6 +69,14 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     //Fragment
     private ArrayList<RowCells> listLine;
 
+    //Popup
+    private AlertDialog.Builder popupEnd;
+    private AlertDialog dialogPopupEnd;
+    private ImageButton btRetryGame;
+    private ImageButton btQuitGame;
+    private TextView retryText;
+    private TextView LooseText;
+    private TextView LeaveText;
     //---------------------------- ---------------------------- ----------------------------
 
     //---------------------------- cycle de vie de l'app ----------------------------
@@ -96,6 +105,9 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
         btReveal = findViewById(R.id.btReveal);
         btReveal.setImageResource(R.drawable.reveal_on);
+
+        btRetryGame = findViewById(R.id.restartButtonGame);
+        btQuitGame = findViewById(R.id.leaveButtonGame);
 
         //Paramétrage spinner
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this, R.array.levels, android.R.layout.simple_spinner_item);
@@ -152,6 +164,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
         //-------------- Recommencer la partie --------------
         btRetry.setOnClickListener(v -> {
+            // Lit le niveau sélectionné
             spinLevelsInt = spinLevels.getSelectedItemPosition();
             if (spinLevelsInt == 1) {
                 difficulty = 16;
@@ -162,26 +175,17 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             else {
                 difficulty = 8;
             }
-            //TODO Recommencer une nouvelle partie après validation
-            for (Fragment fragment : getSupportFragmentManager().getFragments()) {
-                for (Fragment childFragment : fragment.getChildFragmentManager().getFragments()) {
-                    fragment.getChildFragmentManager().beginTransaction().remove(childFragment).commit();
-                }
-                getSupportFragmentManager().beginTransaction().remove(fragment).commit();
-            }
+            // Supprime les fragments
+            removeFragment();
+            // Création d'une nouvelle grille
             addRowsOfCells();
             FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
             for (RowCells frag : listLine) {
                 ft.add(R.id.containerLigne, frag, null);
             }
             ft.commit();
-            Handler handler = new Handler();
-            handler.postDelayed(new Runnable() {
-                public void run() {
-                    setupBombs();
-                    setupNbBombsAroundForEachCell();
-                }
-            }, 50);
+            // Insérer les données dans la grille
+            insertDataInGrid();
 
         });
 
@@ -260,6 +264,27 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         saveSharedData();
     }
 
+    /* Remplissage de la nouvelle grille avec du delay sinon
+     l'application n'a pas le temps de récupérer les informations
+    donc elle génère une grille vide */
+    private void insertDataInGrid() {
+        Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            public void run() {
+                setupBombs();
+                setupNbBombsAroundForEachCell();
+            }
+        }, 50);
+    }
+
+    private void removeFragment(){
+        for (Fragment fragment : getSupportFragmentManager().getFragments()) {
+            for (Fragment childFragment : fragment.getChildFragmentManager().getFragments()) {
+                fragment.getChildFragmentManager().beginTransaction().remove(childFragment).commit();
+            }
+            getSupportFragmentManager().beginTransaction().remove(fragment).commit();
+        }
+    }
     private void addRowsOfCells() {
         listLine.clear();
 
@@ -427,6 +452,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 if (!cell.isBomb() || !(cell.getState() == CellState.BOMB.ordinal())) {
                 } else {
                     cell.displayBomb();
+                    CreatePopupEndGame();
                 }
             }
         }
@@ -446,4 +472,51 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         }
     }
 
+    public void CreatePopupEndGame(){
+        popupEnd = new AlertDialog.Builder(this);
+        final View EndGamePopupView = getLayoutInflater().inflate(R.layout.popup_end, null);
+        btRetryGame = (ImageButton) EndGamePopupView.findViewById(R.id.restartButtonGame);
+        btQuitGame = (ImageButton) EndGamePopupView.findViewById(R.id.leaveButtonGame);
+
+        retryText = (TextView) EndGamePopupView.findViewById(R.id.restartText);
+        LooseText = (TextView) EndGamePopupView.findViewById(R.id.EndSentence);
+        LeaveText = (TextView) EndGamePopupView.findViewById(R.id.leaveText);
+
+        popupEnd.setView(EndGamePopupView);
+        dialogPopupEnd = popupEnd.create();
+        dialogPopupEnd.show();
+        btRetryGame.setOnClickListener(v -> {
+            // Lit le niveau sélectionné
+            spinLevelsInt = spinLevels.getSelectedItemPosition();
+            if (spinLevelsInt == 1) {
+                difficulty = 16;
+            }
+            else if (spinLevelsInt == 2) {
+                difficulty = 24;
+            }
+            else {
+                difficulty = 8;
+            }
+            // Supprime les fragments
+            removeFragment();
+            // Création d'une nouvelle grille
+            addRowsOfCells();
+            FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+            for (RowCells frag : listLine) {
+                ft.add(R.id.containerLigne, frag, null);
+            }
+            ft.commit();
+            // Insérer les données dans la grille
+            insertDataInGrid();
+//            dialogPopupEnd.dismiss();
+
+        });
+
+        btQuitGame.setOnClickListener(v -> {
+            popupEnd.setCancelable(true);
+            dialogPopupEnd.setCanceledOnTouchOutside(true);
+            dialogPopupEnd.dismiss();
+//            dialogPopupEnd.cancel();
+        });
+    }
 }
